@@ -1,0 +1,164 @@
+#include <stdio.h>
+    int year;
+};
+
+struct Donor {
+    char name[50];
+    int age;
+    char bloodType[4];
+    char address[100];
+    struct Date lastDonationDate;
+};
+
+struct BloodUnit {
+    char bloodType[4];
+    int quantity;
+    struct Date donationDate;
+};
+
+struct Donor donors[MAX_DONORS] = {
+    {"John_Doe", 30, "A+", "123 Main St", {15, 5, 2023}},
+    {"Jane_Smith", 25, "O-", "456 Elm St", {10, 4, 2023}},
+    {"Alice_Jones", 35, "B+", "789 Oak St", {20, 3, 2023}},
+    {"Bob_Brown", 40, "AB-", "321 Pine St", {5, 2, 2023}}
+};
+struct BloodUnit bloodStock[MAX_BLOOD_TYPES] = {
+    {"A+", 0, {0, 0, 0}},
+    {"A-", 0, {0, 0, 0}},
+    {"B+", 0, {0, 0, 0}},
+    {"B-", 0, {0, 0, 0}},
+    {"AB+", 0, {0, 0, 0}},
+    {"AB-", 0, {0, 0, 0}},
+    {"O+", 0, {0, 0, 0}},
+    {"O-", 0, {0, 0, 0}}
+};
+
+int numDonors = 4;  // Initialize with the number of prepopulated donors
+
+struct Date getCurrentDate() {
+    struct Date currentDate;
+    printf("Enter today's date (DD MM YYYY): ");
+    scanf("%d %d %d", &currentDate.day, &currentDate.month, &currentDate.year);
+    return currentDate;
+}
+
+void addDonor() {
+    if (numDonors < MAX_DONORS) {
+        struct Donor newDonor;
+        printf("Enter donor name (use underscore instead of space): ");
+        scanf("%s", newDonor.name);
+        printf("Enter donor age: ");
+        scanf("%d", &newDonor.age);
+// Check if the donor is eligible to donate blood
+        if (newDonor.age < 18) {
+            printf("Donor is not eligible to donate blood (must be at least 18 years old).\n");
+            return;
+        }
+        
+        printf("Enter donor blood type (e.g., AB+): ");
+        scanf("%s", newDonor.bloodType);
+        printf("Enter donor address: ");
+        scanf(" %[^\n]s", newDonor.address);
+        printf("Enter last donation date (DD MM YYYY): ");
+        scanf("%d %d %d", &newDonor.lastDonationDate.day, &newDonor.lastDonationDate.month, &newDonor.lastDonationDate.year);
+        
+        donors[numDonors++] = newDonor;
+        printf("Donor added successfully.\n");
+    } else {
+        printf("Maximum donors reached.\n");
+    }
+}
+
+void donateBlood() {
+    char donorName[50];
+    printf("Enter donor name: ");
+    scanf("%s", donorName);
+
+    int donorIndex = -1;
+    for (int i = 0; i < numDonors; i++) {
+        if (strcmp(donors[i].name, donorName) == 0) {
+            donorIndex = i;
+            break;
+        }
+    }
+if (donorIndex == -1) {
+    char bloodType[4];
+    strcpy(bloodType, donors[donorIndex].bloodType);
+    struct Date donationDate = getCurrentDate();
+
+    for (int i = 0; i < MAX_BLOOD_TYPES; i++) {
+        if (strcmp(bloodStock[i].bloodType, bloodType) == 0) {
+            bloodStock[i].quantity++;
+            bloodStock[i].donationDate = donationDate;
+            printf("Blood donation recorded.\n");
+            return;
+        }
+    }
+}
+
+void displayBloodStock() {
+    printf("Blood Stock:\n");
+    printf("S.No | Blood Type | Blood Bags\n");
+    printf("-----|------------|-----------\n");
+    for (int i = 0; i < MAX_BLOOD_TYPES; i++) {
+        printf("%-4d | %-10s | %-9d\n", i + 1, bloodStock[i].bloodType, bloodStock[i].quantity);
+    }
+}
+
+void updateDonorInfo() {
+    char donorName[50];
+    printf("Enter donor name to update: ");
+    scanf("%s", donorName);
+
+    int donorIndex = -1;
+    for (int i = 0; i < numDonors; i++) {
+        if (strcmp(donors[i].name, donorName) == 0) {
+            donorIndex = i;
+            break;
+        }
+    }
+if (donorIndex == -1) {
+    printf("Enter new blood type (e.g., AB+): ");
+    scanf("%s", donors[donorIndex].bloodType);
+    printf("Enter new address: ");
+    scanf(" %[^\n]s", donors[donorIndex].address);
+    printf("Enter new last donation date (DD MM YYYY): ");
+    scanf("%d %d %d", &donors[donorIndex].lastDonationDate.day, &donors[donorIndex].lastDonationDate.month, &donors[donorIndex].lastDonationDate.year);
+    printf("Donor info updated successfully.\n");
+}
+
+int main() {
+    int choice;
+    do {
+        printf("\nBlood Bank Management System\n");
+        printf("1. Add Donor\n");
+        printf("2. Donate Blood\n");
+        printf("3. Display Blood Stock\n");
+        printf("4. Update Donor Info\n");
+        printf("5. Exit\n");
+        printf("Enter your choice: ");
+        scanf("%d", &choice);
+
+        switch(choice) {
+            case 1:
+                addDonor();
+                break;
+            case 2:
+                donateBlood();
+                break;
+            case 3:
+                displayBloodStock();
+                break;
+            case 4:
+                updateDonorInfo();
+                break;
+            case 5:
+                printf("Exiting...\n");
+                break;
+            default:
+                printf("Invalid choice. Please try again.\n");
+        }
+    } while (choice != 5);
+
+    return 0;
+}
